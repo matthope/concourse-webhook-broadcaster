@@ -20,88 +20,115 @@ limitations under the License.
 package prometheus
 
 import (
-	"k8s.io/client-go/util/workqueue"
-
 	"github.com/prometheus/client_golang/prometheus"
+	"k8s.io/client-go/util/workqueue"
 )
 
 // Package prometheus sets the workqueue DefaultMetricsFactory to produce
 // prometheus metrics. To use this package, you just have to import it.
 
-func init() {
+func init() { //nolint:gochecknoinits // TODO init
 	workqueue.SetProvider(prometheusMetricsProvider{})
 }
 
 type prometheusMetricsProvider struct{}
 
-func (_ prometheusMetricsProvider) NewDepthMetric(name string) workqueue.GaugeMetric {
+func (prometheusMetricsProvider) NewDepthMetric(name string) workqueue.GaugeMetric {
 	depth := prometheus.NewGauge(prometheus.GaugeOpts{
 		Subsystem: name,
 		Name:      "depth",
 		Help:      "Current depth of workqueue: " + name,
 	})
-	prometheus.Register(depth)
+
+	if err := prometheus.Register(depth); err != nil {
+		panic(err)
+	}
+
 	return depth
 }
 
-func (_ prometheusMetricsProvider) NewAddsMetric(name string) workqueue.CounterMetric {
+func (prometheusMetricsProvider) NewAddsMetric(name string) workqueue.CounterMetric {
 	adds := prometheus.NewCounter(prometheus.CounterOpts{
 		Subsystem: name,
 		Name:      "adds",
 		Help:      "Total number of adds handled by workqueue: " + name,
 	})
-	prometheus.Register(adds)
+
+	if err := prometheus.Register(adds); err != nil {
+		panic(err)
+	}
+
 	return adds
 }
 
-func (_ prometheusMetricsProvider) NewLatencyMetric(name string) workqueue.HistogramMetric {
+func (prometheusMetricsProvider) NewLatencyMetric(name string) workqueue.HistogramMetric {
 	latency := prometheus.NewHistogram(prometheus.HistogramOpts{
 		Subsystem: name,
 		Name:      "queue_latency_seconds",
 		Help:      "How long an item stays in workqueue" + name + " before being requested.",
 		Buckets:   []float64{.5, 1, 2.5, 5, 10, 30, 60, 120, 300},
 	})
-	prometheus.Register(latency)
+
+	if err := prometheus.Register(latency); err != nil {
+		panic(err)
+	}
+
 	return latency
 }
 
-func (_ prometheusMetricsProvider) NewWorkDurationMetric(name string) workqueue.HistogramMetric {
+func (prometheusMetricsProvider) NewWorkDurationMetric(name string) workqueue.HistogramMetric {
 	workDuration := prometheus.NewHistogram(prometheus.HistogramOpts{
 		Subsystem: name,
 		Name:      "work_duration_seconds",
 		Help:      "How long in seconds processing an item from workqueue takes.",
 		Buckets:   []float64{.5, 1, 2.5, 5, 10, 20, 40, 60, 120},
 	})
-	prometheus.Register(workDuration)
+
+	if err := prometheus.Register(workDuration); err != nil {
+		panic(err)
+	}
+
 	return workDuration
 }
 
-func (_ prometheusMetricsProvider) NewRetriesMetric(name string) workqueue.CounterMetric {
+func (prometheusMetricsProvider) NewRetriesMetric(name string) workqueue.CounterMetric {
 	retries := prometheus.NewCounter(prometheus.CounterOpts{
 		Subsystem: name,
 		Name:      "retries",
 		Help:      "Total number of retries handled by workqueue: " + name,
 	})
-	prometheus.Register(retries)
+
+	if err := prometheus.Register(retries); err != nil {
+		panic(err)
+	}
+
 	return retries
 }
 
-func (_ prometheusMetricsProvider) NewLongestRunningProcessorSecondsMetric(name string) workqueue.SettableGaugeMetric {
+func (prometheusMetricsProvider) NewLongestRunningProcessorSecondsMetric(name string) workqueue.SettableGaugeMetric {
 	retries := prometheus.NewGauge(prometheus.GaugeOpts{
 		Subsystem: name,
 		Name:      "longest_running_processor_seconds",
 		Help:      "How many seconds has the longest running processor for workqueue been running",
 	})
-	prometheus.Register(retries)
+
+	if err := prometheus.Register(retries); err != nil {
+		panic(err)
+	}
+
 	return retries
 }
 
-func (_ prometheusMetricsProvider) NewUnfinishedWorkSecondsMetric(name string) workqueue.SettableGaugeMetric {
+func (prometheusMetricsProvider) NewUnfinishedWorkSecondsMetric(name string) workqueue.SettableGaugeMetric {
 	unfinished := prometheus.NewGauge(prometheus.GaugeOpts{
 		Subsystem: name,
 		Name:      "unfinished_work_seconds",
 		Help:      "How many seconds of work has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
 	})
-	prometheus.Register(unfinished)
+
+	if err := prometheus.Register(unfinished); err != nil {
+		panic(err)
+	}
+
 	return unfinished
 }

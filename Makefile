@@ -1,8 +1,9 @@
-PKG:=github.com/sapcc/webhook-broadcaster
+PKG:=github.com/matthope/concourse-webhook-broadcaster
 IMAGE?=sapcc/concourse-webhook-broadcaster
-VERSION:=0.8.6
+VERSION?=$(shell git describe --tags)
 build:
-	go build -v -o bin/webhook-broadcaster $(PKG)
+	go build -v -ldflags="-X go.szostok.io/version.version=$(VERSION)" -o bin/webhook-broadcaster $(PKG)
+	#go build -v -o bin/webhook-broadcaster $(PKG)
 
 docker:
 	go test -v
